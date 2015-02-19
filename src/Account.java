@@ -6,17 +6,15 @@ public class Account {
 	private String owner;
 	private double balance;
 	private double interestRate;
-	private long createdTime;
 	private long lastRefreshTime;
-	private byte[] encryoted;
+	private byte[] encrypted;
 
 	public Account(String owner, int balance, int pin) {
 		super();
 		this.owner = owner;
 		this.balance = balance;
-		this.encryoted = BigInteger.valueOf(pin).toByteArray();
-		createdTime = System.currentTimeMillis();
-		lastRefreshTime = createdTime;
+		this.encrypted = BigInteger.valueOf(pin).toByteArray();
+		lastRefreshTime = System.currentTimeMillis();
 	}
 
 	public String getOwner() {
@@ -41,12 +39,12 @@ public class Account {
 	}
 
 	public byte[] getPin() {
-		return encryoted;
+		return encrypted;
 	}
 
 	public String setPin(int currentPin, int newPin) {
 		if (checkPin(currentPin)) {
-			this.encryoted = BigInteger.valueOf(newPin).toByteArray();
+			this.encrypted = BigInteger.valueOf(newPin).toByteArray();
 			return ("Done!");
 		} else {
 			return ("Current Pin is incorrect!");
@@ -54,7 +52,7 @@ public class Account {
 	}
 
 	public boolean checkPin(int input) {
-		if (BigInteger.valueOf(input).toByteArray() == encryoted) {
+		if (BigInteger.valueOf(input).toByteArray() == encrypted) {
 			return true;
 		} else {
 			return false;
