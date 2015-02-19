@@ -10,18 +10,26 @@ public class SavingAccount extends Account {
 
 	}
 	public void withdraw(int amount,int pin){
-		if(this.checkPin(pin)){
-			
-		}
+
 	}
-	public int checkBalance(){
-		return this.getBalance();
+	public void checkBalance(int pin){
+		
 	}
 	public void closeAccount(){
 		
 	}
-	public void changePin(int pin){
-		this.setPin(pin);
+	public String changePin(int currentPin,int newPin){
+		return(this.setPin(currentPin,newPin));
 	}
-
+	
+	//Follow methods overwride the same methods in the superclass. Bank interface will not have direct access to these methods in the super class
+	public void setOwner(){
+		
+	}
+	public void setBalance(){
+		
+	}
+	public void setPin(){
+		
+	}
 }
