@@ -11,8 +11,7 @@ import java.util.ArrayList;
 import acm.program.*;
 
 public class Account {
-	private final File file = new File(
-			"/Users/ali/Documents/workspace/MakingBank/src/database");
+	private final File file = new File(getFile());
 	private String owner;
 	private double balance;
 	private double interestRate;
@@ -24,19 +23,18 @@ public class Account {
 		// create empty object to load data
 	}
 
-	public String nameCheck(String name){
+	public String nameCheck(String name) {
 		BufferedReader reader;
 		try {
 			reader = new BufferedReader(new FileReader(file));
 			String line = reader.readLine();
+			reader.close();
 			String[] existingOwner = line.split(" ");
-			for(int i = 0; i < existingOwner.length;i++){
-				if(name.equals(existingOwner[i])){
+			for (int i = 0; i < existingOwner.length; i++) {
+				if (name.equals(existingOwner[i])) {
 					return "An account under this name";
 				}
 			}
-			
-			
 		} catch (FileNotFoundException e) {
 			System.out.println("!database loading error(during name check)!");
 			e.printStackTrace();
@@ -47,12 +45,14 @@ public class Account {
 		return "yes";
 
 	}
-	
-	public Account(String owner, double balance, double interestRate, int pin, String type) {
+
+	public Account(String owner, double balance, double interestRate, int pin,
+			String type) {
 		this.owner = owner;
 		this.balance = balance;
 		this.interestRate = interestRate;
-		this.lastRefreshTime = System.currentTimeMillis();;
+		this.lastRefreshTime = System.currentTimeMillis();
+		;
 		this.type = type;
 		try {
 			this.encrypted = md5("" + pin);
@@ -237,4 +237,16 @@ public class Account {
 		balance = balance * Math.pow((1 + interestRate), durationInHour);
 	}
 
+	private String getFile() {
+		String file;
+		String OS = System.getProperty("os.name");
+		if (OS.indexOf("Win") >= 0) {
+			file ="C:/Users/xander/workspace/MakingBank/src/database";
+			return file;
+		} else  {
+			file = "/Users/ali/Documents/workspace/MakingBank/src/database";
+			return file;
+		}
+
+	}
 }

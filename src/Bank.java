@@ -7,7 +7,7 @@ import acm.program.*;
 public class Bank extends ConsoleProgram {
 	public void run() {
 
-		SavingAccount test = new SavingAccount();
+	SavingAccount test = new SavingAccount();
 		
 		String name = readLine("name: ");
 		int pin = readInt("Pin: ");
@@ -17,8 +17,7 @@ public class Bank extends ConsoleProgram {
 			name = readLine("name: ");
 		}
 		SavingAccount test1 = new SavingAccount(name,pin,deposit);
-		loginUI(name,pin,test);
-		println(test.getBalance());
+		//loginUI(name,pin,test);
 	}
 	
 	
