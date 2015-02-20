@@ -19,9 +19,12 @@ public class Account {
 	private String type;
 	private long lastRefreshTime;
 	private String encrypted;
-
+	
+	public Account(){
+		//create empty object to load data
+	}
 	public Account(String owner, double balance, double interestRate,
-			long lastRefreshTime, int pin,String type) {
+			long lastRefreshTime, int pin, String type) {
 		this.owner = owner;
 		this.balance = balance;
 		this.interestRate = interestRate;
@@ -36,8 +39,16 @@ public class Account {
 		storeNewData();
 	}
 
-	private void storeNewData() {
-		int newLength;
+	public String login(String owner, int pin) {
+		this.owner = owner;
+		return loadData(pin);
+	}
+
+	public double getBalance() {
+		return balance;
+	}
+
+	private String loadData(int pin) {
 		String[] existingOwner;
 		String[] existingBalance;
 		String[] existingInterestRate;
@@ -45,9 +56,11 @@ public class Account {
 		String[] existingLastRefreshTime;
 		String[] existingEncrypted;
 		BufferedReader reader;
+
 		try {
+			// load data into string
+			int index;
 			reader = new BufferedReader(new FileReader(file));
-			//reading existing data into existingArrays
 			String line = reader.readLine();
 			existingOwner = line.split(" ");
 			line = reader.readLine();
@@ -60,16 +73,78 @@ public class Account {
 			existingLastRefreshTime = line.split(" ");
 			line = reader.readLine();
 			existingEncrypted = line.split(" ");
-			
+			// find the account and load info
+			for (int i = 0; i < existingOwner.length; i++) {
+				if (owner.equalsIgnoreCase(existingOwner[i])) {
+					index = i;
+					encrypted = existingEncrypted[index];
+					if (md5("" + pin).equals(encrypted)) {
+						balance = Double.parseDouble(existingBalance[index]);
+						interestRate = Double
+								.parseDouble(existingInterestRate[index]);
+						type = existingType[index];
+						lastRefreshTime = Long
+								.parseLong(existingLastRefreshTime[index]);
+						return "Success!";
+					} else {
+						return "Pin incorrect!";
+					}
+				}
+			reader.close();
+			}
+
+		} catch (FileNotFoundException e) {
+			System.out.println("!database loading error!");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out
+					.println("!database loading error(Buffered Reader error)!");
+			e.printStackTrace();
+		} catch (NumberFormatException e) {
+			System.out.println("!database loading error!");
+			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("!database loading error(encryption error)!");
+			e.printStackTrace();
+		}
+		return "Error!";
+
+	}
+
+	private void storeNewData() {
+		int newLength;
+		String[] existingOwner;
+		String[] existingBalance;
+		String[] existingInterestRate;
+		String[] existingType;
+		String[] existingLastRefreshTime;
+		String[] existingEncrypted;
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			// reading existing data into existingArrays
+			String line = reader.readLine();
+			existingOwner = line.split(" ");
+			line = reader.readLine();
+			existingBalance = line.split(" ");
+			line = reader.readLine();
+			existingInterestRate = line.split(" ");
+			line = reader.readLine();
+			existingType = line.split(" ");
+			line = reader.readLine();
+			existingLastRefreshTime = line.split(" ");
+			line = reader.readLine();
+			existingEncrypted = line.split(" ");
+
 			newLength = existingOwner.length + 1;
-			//creating arrays for new data
+			// creating arrays for new data
 			String[] newOwner = new String[newLength];
 			String[] newBalance = new String[newLength];
 			String[] newInterestRate = new String[newLength];
 			String[] newType = new String[newLength];
 			String[] newLastRefreshTime = new String[newLength];
 			String[] newEncrypted = new String[newLength];
-			//copying old data into new arrays
+			// copying old data into new arrays
 			System.arraycopy(existingOwner, 0, newOwner, 0,
 					existingOwner.length);
 			System.arraycopy(existingBalance, 0, newBalance, 0,
@@ -81,14 +156,14 @@ public class Account {
 					existingOwner.length);
 			System.arraycopy(existingEncrypted, 0, newEncrypted, 0,
 					existingOwner.length);
-			//add the new account at the end
+			// add the new account at the end
 			newOwner[newLength - 1] = owner;
-			newBalance[newLength - 1] = ""+balance;
-			newInterestRate[newLength - 1] = ""+interestRate;
+			newBalance[newLength - 1] = "" + balance;
+			newInterestRate[newLength - 1] = "" + interestRate;
 			newType[newLength - 1] = type;
-			newLastRefreshTime[newLength - 1] = ""+lastRefreshTime;
+			newLastRefreshTime[newLength - 1] = "" + lastRefreshTime;
 			newEncrypted[newLength - 1] = encrypted;
-			//println the string array to file
+			// println the string array to file
 			PrintWriter out = new PrintWriter(file);
 			out.println(arrayToString(newOwner));
 			out.println(arrayToString(newBalance));
@@ -98,7 +173,8 @@ public class Account {
 			out.println(arrayToString(newEncrypted));
 			out.flush();
 			out.close();
-			//catching
+			reader.close();
+			// catching
 		} catch (FileNotFoundException e) {
 			System.out.println("!database reading error (buffered reader)!");
 			e.printStackTrace();
@@ -108,13 +184,15 @@ public class Account {
 		}
 
 	}
-	private String arrayToString(String[] arr){
-		String str="";
-		for(String i:arr){
-			str= str + i+" ";
+
+	private String arrayToString(String[] arr) {
+		String str = "";
+		for (String i : arr) {
+			str = str + i + " ";
 		}
 		return str;
 	}
+
 	public static String md5(String input) throws Exception {
 
 		String original = input;
@@ -128,6 +206,7 @@ public class Account {
 		return (sb.toString());
 
 	}
+
 	private void interestCalculator() {
 		long duration = System.currentTimeMillis() - lastRefreshTime;
 		lastRefreshTime = System.currentTimeMillis();

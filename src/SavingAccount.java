@@ -4,5 +4,8 @@ public class SavingAccount extends Account {
 		super(owner, balance, 0.03, 0, pin,"S");
 		// TODO Auto-generated constructor stub
 	}
+	public SavingAccount(){
+		super();
+	}
 
 }

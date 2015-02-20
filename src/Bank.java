@@ -6,7 +6,9 @@ import acm.program.*;
 
 public class Bank extends ConsoleProgram {
 	public void run() {
-		SavingAccount test = new SavingAccount("xander",123456,500);
+		SavingAccount test = new SavingAccount();
+		println(test.login("xander", 123456));
+		test.setBalance(50000.0);
 	}
 
 }
