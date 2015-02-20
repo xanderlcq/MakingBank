@@ -12,7 +12,7 @@ import acm.program.*;
 
 public class Account {
 	private final File file = new File(
-			"C:/Users/xander/workspace/MakingBank/src/database");
+			"/Users/ali/Documents/workspace/MakingBank/src/database");
 	private String owner;
 	private double balance;
 	private double interestRate;
@@ -24,12 +24,35 @@ public class Account {
 		// create empty object to load data
 	}
 
-	public Account(String owner, double balance, double interestRate,
-			long lastRefreshTime, int pin, String type) {
+	public String nameCheck(String name){
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+			String line = reader.readLine();
+			String[] existingOwner = line.split(" ");
+			for(int i = 0; i < existingOwner.length;i++){
+				if(name.equals(existingOwner[i])){
+					return "An account under this name";
+				}
+			}
+			
+			
+		} catch (FileNotFoundException e) {
+			System.out.println("!database loading error(during name check)!");
+			e.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("!database loading error(during name check)!");
+			e.printStackTrace();
+		}
+		return "yes";
+
+	}
+	
+	public Account(String owner, double balance, double interestRate, int pin, String type) {
 		this.owner = owner;
 		this.balance = balance;
 		this.interestRate = interestRate;
-		this.lastRefreshTime = lastRefreshTime;
+		this.lastRefreshTime = System.currentTimeMillis();;
 		this.type = type;
 		try {
 			this.encrypted = md5("" + pin);
@@ -205,7 +228,6 @@ public class Account {
 			sb.append(String.format("%02x", b & 0xff));
 		}
 		return (sb.toString());
-
 	}
 
 	private void interestCalculator() {
