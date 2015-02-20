@@ -7,5 +7,19 @@ public class SavingAccount extends Account {
 	public SavingAccount(){
 		super();
 	}
+	
+/*
+	public String deposit(double money,int pin){
+		
+	}
+	
+	public String withdraw(double money,int pin){
+		
+	}
+	
+	public String closeAccount(String owner,int pin){
+		
+	}
+*/
 
 }

@@ -19,10 +19,11 @@ public class Account {
 	private String type;
 	private long lastRefreshTime;
 	private String encrypted;
-	
-	public Account(){
-		//create empty object to load data
+
+	public Account() {
+		// create empty object to load data
 	}
+
 	public Account(String owner, double balance, double interestRate,
 			long lastRefreshTime, int pin, String type) {
 		this.owner = owner;
@@ -87,12 +88,12 @@ public class Account {
 								.parseLong(existingLastRefreshTime[index]);
 						return "Success!";
 					} else {
-						return "Pin incorrect!";
+						return "wrongPin";
 					}
 				}
-			reader.close();
+				reader.close();
 			}
-
+			return "wrongName";
 		} catch (FileNotFoundException e) {
 			System.out.println("!database loading error!");
 			e.printStackTrace();
