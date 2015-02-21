@@ -18,9 +18,90 @@ public class Account {
 	private String type;
 	private long lastRefreshTime;
 	private String encrypted;
+	private boolean loggedIn = false;
 
 	public Account() {
 		// create empty object to load data
+	}
+
+	public boolean checkPin(int pin) {
+		try {
+			return (md5("" + pin).equals(encrypted));
+		} catch (Exception e) {
+			System.out.println("checkPin Error");
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	public String closeAccount(int pin) {
+		if (loggedIn && checkPin(pin)) {
+			String[] existingOwner;
+			String[] existingBalance;
+			String[] existingInterestRate;
+			String[] existingType;
+			String[] existingLastRefreshTime;
+			String[] existingEncrypted;
+			BufferedReader reader;
+			try {
+				int index;
+				reader = new BufferedReader(new FileReader(file));
+				String line;
+				line = reader.readLine();
+				existingOwner = line.split(" ");
+				line = reader.readLine();
+				existingBalance = line.split(" ");
+				line = reader.readLine();
+				existingInterestRate = line.split(" ");
+				line = reader.readLine();
+				existingType = line.split(" ");
+				line = reader.readLine();
+				existingLastRefreshTime = line.split(" ");
+				line = reader.readLine();
+				existingEncrypted = line.split(" ");
+				reader.close();
+				for(int i = 0; i < existingOwner.length;i++){
+					if(owner.equalsIgnoreCase(existingOwner[i])){
+						index = i;
+						existingOwner[index] =" ";
+						existingBalance[index]=" ";
+						existingInterestRate[index]=" ";
+						existingType[index]=" ";
+						existingLastRefreshTime[index]=" ";
+						existingEncrypted[index]=" ";
+						//close account
+						PrintWriter out = new PrintWriter(file);
+						out.println(arrayToString(existingOwner));
+						out.println(arrayToString(existingBalance));
+						out.println(arrayToString(existingInterestRate));
+						out.println(arrayToString(existingType));
+						out.println(arrayToString(existingLastRefreshTime));
+						out.println(arrayToString(existingEncrypted));
+						out.flush();
+						out.close();
+						//
+						owner = null;
+						balance = 0;
+						interestRate = 0;
+						type = null;
+						lastRefreshTime = 0;
+						encrypted = null;
+						return "Account deleted!";
+					}
+				}
+
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// set it to space
+
+		} else {
+			return "Please Log In First";
+		}
+		return "Not found";
 	}
 
 	public String nameCheck(String name) {
@@ -61,15 +142,21 @@ public class Account {
 			e.printStackTrace();
 		}
 		storeNewData();
+		loggedIn = true;
 	}
 
 	public String login(String owner, int pin) {
 		this.owner = owner;
+		loggedIn = true;
 		return loadData(pin);
 	}
 
-	public double getBalance() {
-		return balance;
+	public String getBalance() {
+		if (loggedIn) {
+			return "" + balance;
+		} else {
+			return "Please Log in first!";
+		}
 	}
 
 	private String loadData(int pin) {
@@ -218,8 +305,6 @@ public class Account {
 	}
 
 	public static String md5(String input) throws Exception {
-		
-		
 
 		String original = input;
 		MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -244,9 +329,9 @@ public class Account {
 		String file;
 		String OS = System.getProperty("os.name");
 		if (OS.indexOf("Win") >= 0) {
-			file ="C:/Users/xander/workspace/MakingBank/src/database";
+			file = "C:/Users/xander/workspace/MakingBank/src/database";
 			return file;
-		} else  {
+		} else {
 			file = "/Users/ali/Documents/workspace/MakingBank/src/database";
 			return file;
 		}

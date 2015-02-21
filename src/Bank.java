@@ -7,26 +7,39 @@ import acm.program.*;
 public class Bank extends ConsoleProgram {
 	public void run() {
 
-		SavingAccount test = new SavingAccount();
-		/*
-		 * String name = readLine("name: "); int pin = readInt("Pin: "); double
-		 * deposit = readDouble("Deposit: ");
-		 * while(!((test.nameCheck(name)).equals("yes"))){
-		 * println(test.nameCheck(name)); name = readLine("name: "); }
-		 * SavingAccount test1 = new SavingAccount(name,pin,deposit);
-		 */
-		String name = readLine("name: ");
-		int pin = readInt("Pin: ");
-		loginUI(name, pin, test);
+		//register();
+		SavingAccount temp = new SavingAccount();
+		loginUI(temp);
+		println(temp.closeAccount(123456));
+		
 	}
 
-	private void loginUI(String name, int pin, SavingAccount test) {
+	private void register() {
+		SavingAccount temp = new SavingAccount();
+		String name = readLine("name: ");
+		int pin = readInt("Pin: ");
+		double deposit = readDouble("Initial Deposit: ");
+		while (!((temp.nameCheck(name)).equals("yes"))) {
+			println(temp.nameCheck(name));
+			name = readLine("name: ");
+			pin = readInt("Pin: ");
+			deposit = readDouble("Initial Deposit: ");
+			println();
+		}
+		temp = new SavingAccount(name, pin, deposit);
+		println("Success!");
+	}
+
+	private void loginUI(Account temp) {
+		
+		String name = readLine("name: ");
+		int pin = readInt("Pin: ");
 		while (true) {
-			if ((test.login(name, pin).equals("wrongName"))) {
+			if ((temp.login(name, pin).equals("wrongName"))) {
 				println("Account under this name doesn't exist!");
 				name = readLine("name: ");
 				pin = readInt("Pin: ");
-			} else if ((test.login(name, pin).equals("wrongPin"))) {
+			} else if ((temp.login(name, pin).equals("wrongPin"))) {
 				println("pin incorrect");
 				pin = readInt("Pin: ");
 			} else {
@@ -34,7 +47,7 @@ public class Bank extends ConsoleProgram {
 			}
 
 		}
-		println(test.login(name, pin));
+		println(temp.login(name, pin));
 	}
 
 }
