@@ -1,14 +1,5 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.*;
+import java.io.*;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-
-import acm.program.*;
 
 public class Account {
 	private final File file = new File(getFile());
@@ -60,16 +51,16 @@ public class Account {
 				line = reader.readLine();
 				existingEncrypted = line.split(" ");
 				reader.close();
-				for(int i = 0; i < existingOwner.length;i++){
-					if(owner.equalsIgnoreCase(existingOwner[i])){
+				for (int i = 0; i < existingOwner.length; i++) {
+					if (owner.equalsIgnoreCase(existingOwner[i])) {
 						index = i;
-						existingOwner[index] =" ";
-						existingBalance[index]=" ";
-						existingInterestRate[index]=" ";
-						existingType[index]=" ";
-						existingLastRefreshTime[index]=" ";
-						existingEncrypted[index]=" ";
-						//close account
+						existingOwner[index] = "";
+						existingBalance[index] = "";
+						existingInterestRate[index] = "";
+						existingType[index] = "";
+						existingLastRefreshTime[index] = "";
+						existingEncrypted[index] = "";
+						// close account
 						PrintWriter out = new PrintWriter(file);
 						out.println(arrayToString(existingOwner));
 						out.println(arrayToString(existingBalance));
@@ -90,7 +81,6 @@ public class Account {
 					}
 				}
 
-				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -153,12 +143,13 @@ public class Account {
 
 	public String getBalance() {
 		if (loggedIn) {
+			interestCalculator();
 			return "" + balance;
 		} else {
 			return "Please Log in first!";
 		}
 	}
-
+//------basic private method-------
 	private String loadData(int pin) {
 		String[] existingOwner;
 		String[] existingBalance;
@@ -221,7 +212,6 @@ public class Account {
 		return "Error!";
 
 	}
-
 	private void storeNewData() {
 		int newLength;
 		String[] existingOwner;
@@ -295,7 +285,58 @@ public class Account {
 		}
 
 	}
+	private void refreshData(){
+		String[]  Owner;
+		String[]  Balance;
+		String[]  InterestRate;
+		String[]  Type;
+		String[]  LastRefreshTime;
+		String[]  Encrypted;
+		BufferedReader reader;
+		try {
+			reader = new BufferedReader(new FileReader(file));
+		String line;
+		line = reader.readLine();
+		 Owner = line.split(" ");
+		line = reader.readLine();
+		 Balance = line.split(" ");
+		line = reader.readLine();
+		 InterestRate = line.split(" ");
+		line = reader.readLine();
+		 Type = line.split(" ");
+		line = reader.readLine();
+		 LastRefreshTime = line.split(" ");
+		line = reader.readLine();
+		 Encrypted = line.split(" ");
+		reader.close();
+		for (int i = 0; i <  Owner.length; i++) {
+			if (owner.equalsIgnoreCase( Owner[i])) {
+				 Owner[i] = owner;
+				 InterestRate[i] = ""+interestRate;
+				 Balance[i] = ""+balance;
+				 LastRefreshTime[i] =""+ lastRefreshTime;
+				 Type[i] = type;
+				 Encrypted[i] = encrypted;
+				PrintWriter out = new PrintWriter(file);
+				out.println(arrayToString( Owner));
+				out.println(arrayToString( Balance));
+				out.println(arrayToString( InterestRate));
+				out.println(arrayToString( Type));
+				out.println(arrayToString( LastRefreshTime));
+				out.println(arrayToString( Encrypted));
+				out.flush();
+				out.close();
+			}
+		}
 
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	private String arrayToString(String[] arr) {
 		String str = "";
 		for (String i : arr) {
@@ -303,8 +344,13 @@ public class Account {
 		}
 		return str;
 	}
-
-	public static String md5(String input) throws Exception {
+	private void interestCalculator() {
+				double durationInHour = (int) ((System.currentTimeMillis() - lastRefreshTime) / 1000 / 60 / 60);
+				lastRefreshTime = System.currentTimeMillis();
+				balance = balance * Math.pow((1 + interestRate), durationInHour);
+				refreshData();
+	}
+	private static String md5(String input) throws Exception {
 
 		String original = input;
 		MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -317,14 +363,6 @@ public class Account {
 		return (sb.toString());
 
 	}
-
-	private void interestCalculator() {
-		long duration = System.currentTimeMillis() - lastRefreshTime;
-		lastRefreshTime = System.currentTimeMillis();
-		double durationInHour = (int) (duration / 1000 / 60 / 60);
-		balance = balance * Math.pow((1 + interestRate), durationInHour);
-	}
-
 	private String getFile() {
 		String file;
 		String OS = System.getProperty("os.name");

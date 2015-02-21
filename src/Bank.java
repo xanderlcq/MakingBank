@@ -10,7 +10,7 @@ public class Bank extends ConsoleProgram {
 		//register();
 		SavingAccount temp = new SavingAccount();
 		loginUI(temp);
-		println(temp.closeAccount(123456));
+		println(temp.getBalance());
 		
 	}
 
