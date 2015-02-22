@@ -10,6 +10,7 @@ public class Account {
 	private long lastRefreshTime;
 	private String encrypted;
 	private boolean loggedIn = false;
+	private String oldOwner = owner;
 
 	public Account() {
 		// create empty object to load data
@@ -23,6 +24,34 @@ public class Account {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public String withdraw(double amount, int pin) {
+		try {
+			if (encrypted.equals(md5("" + pin))) {
+				String currentBalance = getBalance();
+				balance -= amount;
+				String newBalance = getBalance();
+				return ("Your current balance is " + currentBalance
+						+ ". You withdrew: " + amount
+						+ ". Your new balance is: " + newBalance);
+			} else {
+
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "Pin Incorrect!";
+	}
+
+	public String makeDeposit(double amount) {
+		String currentBalance = getBalance();
+		balance += amount;
+		String newBalance = getBalance();
+		return ("Your current balance is " + currentBalance
+				+ ". You made a deposit of: " + amount
+				+ ". Your new balance is: " + newBalance);
 	}
 
 	public String closeAccount(int pin) {
@@ -103,7 +132,7 @@ public class Account {
 			String[] existingOwner = line.split(" ");
 			for (int i = 0; i < existingOwner.length; i++) {
 				if (name.equals(existingOwner[i])) {
-					return "An account under this name";
+					return "An account is already under this name";
 				}
 			}
 		} catch (FileNotFoundException e) {
@@ -149,7 +178,61 @@ public class Account {
 			return "Please Log in first!";
 		}
 	}
-//------basic private method-------
+	
+	public String changePin(int oldPin, int newPin){
+		try {
+			if(encrypted.equals(md5(""+oldPin))){
+				encrypted = md5(""+newPin);
+				refreshData();
+				loggedIn = false;
+				return "Success! Please log in again!";
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "Current Pin Incorrect!";
+	}
+	
+	public String changeType(int pin, String newType){
+		try {
+			if(encrypted.equals(md5(""+pin))){
+				type = newType;
+				getBalance();
+				if(type.equals("S")){
+					interestRate = 0.03;
+				}else{
+					interestRate = 0.01;
+				}
+				refreshData();
+				return "Success!";
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "Current Pin Incorrect!";
+	}
+	
+	public String changeOwner(String newOwner, int pin){
+		try {
+			if(encrypted.equals(md5(""+pin))){
+				if(!nameCheck(newOwner).equals("yes")){
+					return nameCheck(newOwner);
+				}
+				oldOwner = owner;
+				owner = newOwner;
+				refreshData();
+				loggedIn = false;
+				return "Done! Please log in again!";
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "Pin Incorrect!";
+	}
+	// ------basic private method-------
 	private String loadData(int pin) {
 		String[] existingOwner;
 		String[] existingBalance;
@@ -212,6 +295,7 @@ public class Account {
 		return "Error!";
 
 	}
+
 	private void storeNewData() {
 		int newLength;
 		String[] existingOwner;
@@ -285,49 +369,54 @@ public class Account {
 		}
 
 	}
-	private void refreshData(){
-		String[]  Owner;
-		String[]  Balance;
-		String[]  InterestRate;
-		String[]  Type;
-		String[]  LastRefreshTime;
-		String[]  Encrypted;
+
+	private void refreshData() {
+		if(oldOwner == null){
+			oldOwner = owner;
+		}
+		String[] Owner;
+		String[] Balance;
+		String[] InterestRate;
+		String[] Type;
+		String[] LastRefreshTime;
+		String[] Encrypted;
 		BufferedReader reader;
 		try {
 			reader = new BufferedReader(new FileReader(file));
-		String line;
-		line = reader.readLine();
-		 Owner = line.split(" ");
-		line = reader.readLine();
-		 Balance = line.split(" ");
-		line = reader.readLine();
-		 InterestRate = line.split(" ");
-		line = reader.readLine();
-		 Type = line.split(" ");
-		line = reader.readLine();
-		 LastRefreshTime = line.split(" ");
-		line = reader.readLine();
-		 Encrypted = line.split(" ");
-		reader.close();
-		for (int i = 0; i <  Owner.length; i++) {
-			if (owner.equalsIgnoreCase( Owner[i])) {
-				 Owner[i] = owner;
-				 InterestRate[i] = ""+interestRate;
-				 Balance[i] = ""+balance;
-				 LastRefreshTime[i] =""+ lastRefreshTime;
-				 Type[i] = type;
-				 Encrypted[i] = encrypted;
-				PrintWriter out = new PrintWriter(file);
-				out.println(arrayToString( Owner));
-				out.println(arrayToString( Balance));
-				out.println(arrayToString( InterestRate));
-				out.println(arrayToString( Type));
-				out.println(arrayToString( LastRefreshTime));
-				out.println(arrayToString( Encrypted));
-				out.flush();
-				out.close();
+			String line;
+			line = reader.readLine();
+			Owner = line.split(" ");
+			line = reader.readLine();
+			Balance = line.split(" ");
+			line = reader.readLine();
+			InterestRate = line.split(" ");
+			line = reader.readLine();
+			Type = line.split(" ");
+			line = reader.readLine();
+			LastRefreshTime = line.split(" ");
+			line = reader.readLine();
+			Encrypted = line.split(" ");
+			reader.close();
+			for (int i = 0; i < Owner.length; i++) {
+				
+				if (owner.equalsIgnoreCase(Owner[i]) ||oldOwner.equalsIgnoreCase(Owner[i])) {
+					Owner[i] = owner;
+					InterestRate[i] = "" + interestRate;
+					Balance[i] = "" + balance;
+					LastRefreshTime[i] = "" + lastRefreshTime;
+					Type[i] = type;
+					Encrypted[i] = encrypted;
+					PrintWriter out = new PrintWriter(file);
+					out.println(arrayToString(Owner));
+					out.println(arrayToString(Balance));
+					out.println(arrayToString(InterestRate));
+					out.println(arrayToString(Type));
+					out.println(arrayToString(LastRefreshTime));
+					out.println(arrayToString(Encrypted));
+					out.flush();
+					out.close();
+				}
 			}
-		}
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -337,6 +426,7 @@ public class Account {
 			e.printStackTrace();
 		}
 	}
+
 	private String arrayToString(String[] arr) {
 		String str = "";
 		for (String i : arr) {
@@ -344,12 +434,16 @@ public class Account {
 		}
 		return str;
 	}
+
 	private void interestCalculator() {
-				double durationInHour = (int) ((System.currentTimeMillis() - lastRefreshTime) / 1000 / 60 / 60);
-				lastRefreshTime = System.currentTimeMillis();
-				balance = balance * Math.pow((1 + interestRate), durationInHour);
-				refreshData();
+		long duration = System.currentTimeMillis() - lastRefreshTime;
+		int durationInHour = (int) ((System.currentTimeMillis() - lastRefreshTime) / 1000 / 60 / 60);
+		long remainder = duration - 60 * 60 * 1000 * durationInHour;
+		lastRefreshTime = System.currentTimeMillis() - remainder;
+		balance = balance * Math.pow((1 + interestRate), durationInHour);
+		refreshData();
 	}
+
 	private static String md5(String input) throws Exception {
 
 		String original = input;
@@ -363,6 +457,7 @@ public class Account {
 		return (sb.toString());
 
 	}
+
 	private String getFile() {
 		String file;
 		String OS = System.getProperty("os.name");

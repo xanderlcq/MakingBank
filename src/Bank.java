@@ -10,7 +10,13 @@ public class Bank extends ConsoleProgram {
 		//register();
 		SavingAccount temp = new SavingAccount();
 		loginUI(temp);
-		println(temp.getBalance());
+		//double amount = readDouble("How much do u wanna withdraw? ");
+		//int pin = readInt("Pin: ");
+		//String newOwner = readLine("New Owner Name: ");
+		int oldPin = readInt("Old Pin: ");
+		//int newPin = readInt("New Pin: ");
+		println(temp.changeType(oldPin, "S"));
+		//println(temp.withdraw(amount,pin));
 		
 	}
 
