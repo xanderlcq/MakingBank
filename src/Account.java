@@ -4,10 +4,10 @@ import java.security.MessageDigest;
 public class Account {
 	private final File file = new File(getFile());
 	private String owner;
-	private double balance;
-	private double interestRate;
+	private String balance;
+	private String interestRate;
 	private String type;
-	private long lastRefreshTime;
+	private String lastRefreshTime;
 	private String encrypted;
 	private boolean loggedIn = false;
 	private String oldOwner = owner;
@@ -28,9 +28,9 @@ public class Account {
 
 	public String withdraw(double amount, int pin) {
 		try {
-			if (encrypted.equals(md5("" + pin))) {
+			if (loggedIn && checkPin(pin)) {
 				String currentBalance = getBalance();
-				balance -= amount;
+				balance = "" + (Double.parseDouble(balance) - amount);
 				String newBalance = getBalance();
 				return ("Your current balance is " + currentBalance
 						+ ". You withdrew: " + amount
@@ -47,7 +47,7 @@ public class Account {
 
 	public String makeDeposit(double amount) {
 		String currentBalance = getBalance();
-		balance += amount;
+		balance = "" + (Double.parseDouble(balance) + amount);
 		String newBalance = getBalance();
 		return ("Your current balance is " + currentBalance
 				+ ". You made a deposit of: " + amount
@@ -56,71 +56,19 @@ public class Account {
 
 	public String closeAccount(int pin) {
 		if (loggedIn && checkPin(pin)) {
-			String[] existingOwner;
-			String[] existingBalance;
-			String[] existingInterestRate;
-			String[] existingType;
-			String[] existingLastRefreshTime;
-			String[] existingEncrypted;
-			BufferedReader reader;
-			try {
-				int index;
-				reader = new BufferedReader(new FileReader(file));
-				String line;
-				line = reader.readLine();
-				existingOwner = line.split(" ");
-				line = reader.readLine();
-				existingBalance = line.split(" ");
-				line = reader.readLine();
-				existingInterestRate = line.split(" ");
-				line = reader.readLine();
-				existingType = line.split(" ");
-				line = reader.readLine();
-				existingLastRefreshTime = line.split(" ");
-				line = reader.readLine();
-				existingEncrypted = line.split(" ");
-				reader.close();
-				for (int i = 0; i < existingOwner.length; i++) {
-					if (owner.equalsIgnoreCase(existingOwner[i])) {
-						index = i;
-						existingOwner[index] = "";
-						existingBalance[index] = "";
-						existingInterestRate[index] = "";
-						existingType[index] = "";
-						existingLastRefreshTime[index] = "";
-						existingEncrypted[index] = "";
-						// close account
-						PrintWriter out = new PrintWriter(file);
-						out.println(arrayToString(existingOwner));
-						out.println(arrayToString(existingBalance));
-						out.println(arrayToString(existingInterestRate));
-						out.println(arrayToString(existingType));
-						out.println(arrayToString(existingLastRefreshTime));
-						out.println(arrayToString(existingEncrypted));
-						out.flush();
-						out.close();
-						//
-						owner = null;
-						balance = 0;
-						interestRate = 0;
-						type = null;
-						lastRefreshTime = 0;
-						encrypted = null;
-						return "Account deleted!";
-					}
-				}
-
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			// set it to space
-
+			oldOwner = owner;
+			owner = "";
+			balance = "";
+			interestRate = "";
+			type = "";
+			lastRefreshTime = "";
+			encrypted = "";
+			refreshData();
+			return "Account deleted!";
 		} else {
-			return "Please Log In First";
+			return "Pin Incorrect!";
 		}
-		return "Not found";
+		
 	}
 
 	public String nameCheck(String name) {
@@ -129,9 +77,9 @@ public class Account {
 			reader = new BufferedReader(new FileReader(file));
 			String line = reader.readLine();
 			reader.close();
-			String[] existingOwner = line.split(" ");
-			for (int i = 0; i < existingOwner.length; i++) {
-				if (name.equals(existingOwner[i])) {
+			String[]  Owner = line.split(" ");
+			for (int i = 0; i <  Owner.length; i++) {
+				if (name.equals( Owner[i])) {
 					return "An account is already under this name";
 				}
 			}
@@ -149,9 +97,9 @@ public class Account {
 	public Account(String owner, double balance, double interestRate, int pin,
 			String type) {
 		this.owner = owner;
-		this.balance = balance;
-		this.interestRate = interestRate;
-		this.lastRefreshTime = System.currentTimeMillis();
+		this.balance = "" + balance;
+		this.interestRate = "" + interestRate;
+		this.lastRefreshTime = "" + System.currentTimeMillis();
 		;
 		this.type = type;
 		try {
@@ -173,16 +121,16 @@ public class Account {
 	public String getBalance() {
 		if (loggedIn) {
 			interestCalculator();
-			return "" + balance;
+			return balance;
 		} else {
 			return "Please Log in first!";
 		}
 	}
-	
-	public String changePin(int oldPin, int newPin){
+
+	public String changePin(int oldPin, int newPin) {
 		try {
-			if(encrypted.equals(md5(""+oldPin))){
-				encrypted = md5(""+newPin);
+			if (checkPin(oldPin)) {
+				encrypted = md5("" + newPin);
 				refreshData();
 				loggedIn = false;
 				return "Success! Please log in again!";
@@ -193,16 +141,16 @@ public class Account {
 		}
 		return "Current Pin Incorrect!";
 	}
-	
-	public String changeType(int pin, String newType){
+
+	public String changeType(int pin, String newType) {
 		try {
-			if(encrypted.equals(md5(""+pin))){
+			if (checkPin(pin)) {
 				type = newType;
 				getBalance();
-				if(type.equals("S")){
-					interestRate = 0.03;
-				}else{
-					interestRate = 0.01;
+				if (type.equals("S")) {
+					interestRate = "" + 0.03;
+				} else {
+					interestRate = "" + 0.01;
 				}
 				refreshData();
 				return "Success!";
@@ -213,11 +161,11 @@ public class Account {
 		}
 		return "Current Pin Incorrect!";
 	}
-	
-	public String changeOwner(String newOwner, int pin){
+
+	public String changeOwner(String newOwner, int pin) {
 		try {
-			if(encrypted.equals(md5(""+pin))){
-				if(!nameCheck(newOwner).equals("yes")){
+			if (checkPin(pin)) {
+				if (!nameCheck(newOwner).equals("yes")) {
 					return nameCheck(newOwner);
 				}
 				oldOwner = owner;
@@ -232,14 +180,15 @@ public class Account {
 		}
 		return "Pin Incorrect!";
 	}
+
 	// ------basic private method-------
 	private String loadData(int pin) {
-		String[] existingOwner;
-		String[] existingBalance;
-		String[] existingInterestRate;
-		String[] existingType;
-		String[] existingLastRefreshTime;
-		String[] existingEncrypted;
+		String[]  Owner;
+		String[]  Balance;
+		String[]  InterestRate;
+		String[]  Type;
+		String[]  LastRefreshTime;
+		String[]  Encrypted;
 		BufferedReader reader;
 
 		try {
@@ -247,29 +196,27 @@ public class Account {
 			int index;
 			reader = new BufferedReader(new FileReader(file));
 			String line = reader.readLine();
-			existingOwner = line.split(" ");
+			 Owner = line.split(" ");
 			line = reader.readLine();
-			existingBalance = line.split(" ");
+			 Balance = line.split(" ");
 			line = reader.readLine();
-			existingInterestRate = line.split(" ");
+			 InterestRate = line.split(" ");
 			line = reader.readLine();
-			existingType = line.split(" ");
+			 Type = line.split(" ");
 			line = reader.readLine();
-			existingLastRefreshTime = line.split(" ");
+			 LastRefreshTime = line.split(" ");
 			line = reader.readLine();
-			existingEncrypted = line.split(" ");
+			 Encrypted = line.split(" ");
 			// find the account and load info
-			for (int i = 0; i < existingOwner.length; i++) {
-				if (owner.equalsIgnoreCase(existingOwner[i])) {
+			for (int i = 0; i <  Owner.length; i++) {
+				if (owner.equalsIgnoreCase( Owner[i])) {
 					index = i;
-					encrypted = existingEncrypted[index];
-					if (md5("" + pin).equals(encrypted)) {
-						balance = Double.parseDouble(existingBalance[index]);
-						interestRate = Double
-								.parseDouble(existingInterestRate[index]);
-						type = existingType[index];
-						lastRefreshTime = Long
-								.parseLong(existingLastRefreshTime[index]);
+					encrypted =  Encrypted[index];
+					if (checkPin(pin)) {
+						balance =  Balance[index];
+						interestRate =  InterestRate[index];
+						type =  Type[index];
+						lastRefreshTime =  LastRefreshTime[index];
 						return "Success!";
 					} else {
 						return "wrongPin";
@@ -371,7 +318,7 @@ public class Account {
 	}
 
 	private void refreshData() {
-		if(oldOwner == null){
+		if (oldOwner == null) {
 			oldOwner = owner;
 		}
 		String[] Owner;
@@ -398,12 +345,13 @@ public class Account {
 			Encrypted = line.split(" ");
 			reader.close();
 			for (int i = 0; i < Owner.length; i++) {
-				
-				if (owner.equalsIgnoreCase(Owner[i]) ||oldOwner.equalsIgnoreCase(Owner[i])) {
+
+				if (owner.equalsIgnoreCase(Owner[i])
+						|| oldOwner.equalsIgnoreCase(Owner[i])) {
 					Owner[i] = owner;
-					InterestRate[i] = "" + interestRate;
-					Balance[i] = "" + balance;
-					LastRefreshTime[i] = "" + lastRefreshTime;
+					InterestRate[i] = interestRate;
+					Balance[i] = balance;
+					LastRefreshTime[i] = lastRefreshTime;
 					Type[i] = type;
 					Encrypted[i] = encrypted;
 					PrintWriter out = new PrintWriter(file);
@@ -436,11 +384,15 @@ public class Account {
 	}
 
 	private void interestCalculator() {
-		long duration = System.currentTimeMillis() - lastRefreshTime;
-		int durationInHour = (int) ((System.currentTimeMillis() - lastRefreshTime) / 1000 / 60 / 60);
+		long duration = System.currentTimeMillis()
+				- Long.parseLong(lastRefreshTime);
+		int durationInHour = (int) ((System.currentTimeMillis() - Long
+				.parseLong(lastRefreshTime)) / 1000 / 60 / 60);
 		long remainder = duration - 60 * 60 * 1000 * durationInHour;
-		lastRefreshTime = System.currentTimeMillis() - remainder;
-		balance = balance * Math.pow((1 + interestRate), durationInHour);
+		lastRefreshTime = "" + (System.currentTimeMillis() - remainder);
+		balance = ""
+				+ (Double.parseDouble(balance) * Math.pow(
+						(1 + Double.parseDouble(interestRate)), durationInHour));
 		refreshData();
 	}
 

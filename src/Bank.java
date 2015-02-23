@@ -9,13 +9,14 @@ public class Bank extends ConsoleProgram {
 
 		//register();
 		SavingAccount temp = new SavingAccount();
+		register();
 		loginUI(temp);
 		//double amount = readDouble("How much do u wanna withdraw? ");
 		//int pin = readInt("Pin: ");
 		//String newOwner = readLine("New Owner Name: ");
-		int oldPin = readInt("Old Pin: ");
-		//int newPin = readInt("New Pin: ");
-		println(temp.changeType(oldPin, "S"));
+		//int oldPin = readInt("Old Pin: ");
+		int pin = readInt("New Pin: ");
+		println(temp.closeAccount(pin));
 		//println(temp.withdraw(amount,pin));
 		
 	}
