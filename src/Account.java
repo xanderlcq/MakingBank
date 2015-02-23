@@ -30,6 +30,9 @@ public class Account {
 		try {
 			if (loggedIn && checkPin(pin)) {
 				String currentBalance = getBalance();
+				if (amount > Double.parseDouble(currentBalance)) {
+					return "You don't have enough money!";
+				}
 				balance = "" + (Double.parseDouble(balance) - amount);
 				String newBalance = getBalance();
 				return ("Your current balance is " + currentBalance
@@ -43,6 +46,78 @@ public class Account {
 			e.printStackTrace();
 		}
 		return "Pin Incorrect!";
+	}
+
+	public String transfer(int pin, double amount, String reciever) {
+		if (checkPin(pin)) {
+			if (Double.parseDouble(getBalance()) > amount) {
+				withdraw(amount,pin);
+				String[] Owner;
+				String[] Balance;
+				String[] InterestRate;
+				String[] Type;
+				String[] LastRefreshTime;
+				String[] Encrypted;
+				BufferedReader reader;
+
+				try {
+					// load data into string
+					int index;
+					reader = new BufferedReader(new FileReader(file));
+					String line = reader.readLine();
+					Owner = line.split(" ");
+					line = reader.readLine();
+					Balance = line.split(" ");
+					line = reader.readLine();
+					InterestRate = line.split(" ");
+					line = reader.readLine();
+					Type = line.split(" ");
+					line = reader.readLine();
+					LastRefreshTime = line.split(" ");
+					line = reader.readLine();
+					Encrypted = line.split(" ");
+					// find the account and load info
+					for (int i = 0; i < Owner.length; i++) {
+						if (reciever.equalsIgnoreCase(Owner[i])) {
+							index = i;
+							
+								Balance[index] = ""+(Double.parseDouble(Balance[index])+amount);
+								PrintWriter out = new PrintWriter(file);
+								out.println(arrayToString(Owner));
+								out.println(arrayToString(Balance));
+								out.println(arrayToString(InterestRate));
+								out.println(arrayToString(Type));
+								out.println(arrayToString(LastRefreshTime));
+								out.println(arrayToString(Encrypted));
+								out.flush();
+								out.close();
+								return "Transfer Success!";
+						}
+						reader.close();
+					}
+					return "Reciever account doesn't exist!";
+				} catch (FileNotFoundException e) {
+					System.out.println("!database loading error!");
+					e.printStackTrace();
+				} catch (IOException e) {
+					System.out
+							.println("!database loading error(Buffered Reader error)!");
+					e.printStackTrace();
+				} catch (NumberFormatException e) {
+					System.out.println("!database loading error!");
+					e.printStackTrace();
+				} catch (Exception e) {
+					System.out.println("!database loading error(encryption error)!");
+					e.printStackTrace();
+				}
+				
+			} else {
+				return "You don't have enough money!";
+			}
+		} else {
+			return "Pin Incorrect!";
+		}
+		return "Something's wrong.";
 	}
 
 	public String makeDeposit(double amount) {
@@ -68,7 +143,7 @@ public class Account {
 		} else {
 			return "Pin Incorrect!";
 		}
-		
+
 	}
 
 	public String nameCheck(String name) {
@@ -77,9 +152,9 @@ public class Account {
 			reader = new BufferedReader(new FileReader(file));
 			String line = reader.readLine();
 			reader.close();
-			String[]  Owner = line.split(" ");
-			for (int i = 0; i <  Owner.length; i++) {
-				if (name.equals( Owner[i])) {
+			String[] Owner = line.split(" ");
+			for (int i = 0; i < Owner.length; i++) {
+				if (name.equals(Owner[i])) {
 					return "An account is already under this name";
 				}
 			}
@@ -183,12 +258,12 @@ public class Account {
 
 	// ------basic private method-------
 	private String loadData(int pin) {
-		String[]  Owner;
-		String[]  Balance;
-		String[]  InterestRate;
-		String[]  Type;
-		String[]  LastRefreshTime;
-		String[]  Encrypted;
+		String[] Owner;
+		String[] Balance;
+		String[] InterestRate;
+		String[] Type;
+		String[] LastRefreshTime;
+		String[] Encrypted;
 		BufferedReader reader;
 
 		try {
@@ -196,27 +271,27 @@ public class Account {
 			int index;
 			reader = new BufferedReader(new FileReader(file));
 			String line = reader.readLine();
-			 Owner = line.split(" ");
+			Owner = line.split(" ");
 			line = reader.readLine();
-			 Balance = line.split(" ");
+			Balance = line.split(" ");
 			line = reader.readLine();
-			 InterestRate = line.split(" ");
+			InterestRate = line.split(" ");
 			line = reader.readLine();
-			 Type = line.split(" ");
+			Type = line.split(" ");
 			line = reader.readLine();
-			 LastRefreshTime = line.split(" ");
+			LastRefreshTime = line.split(" ");
 			line = reader.readLine();
-			 Encrypted = line.split(" ");
+			Encrypted = line.split(" ");
 			// find the account and load info
-			for (int i = 0; i <  Owner.length; i++) {
-				if (owner.equalsIgnoreCase( Owner[i])) {
+			for (int i = 0; i < Owner.length; i++) {
+				if (owner.equalsIgnoreCase(Owner[i])) {
 					index = i;
-					encrypted =  Encrypted[index];
+					encrypted = Encrypted[index];
 					if (checkPin(pin)) {
-						balance =  Balance[index];
-						interestRate =  InterestRate[index];
-						type =  Type[index];
-						lastRefreshTime =  LastRefreshTime[index];
+						balance = Balance[index];
+						interestRate = InterestRate[index];
+						type = Type[index];
+						lastRefreshTime = LastRefreshTime[index];
 						return "Success!";
 					} else {
 						return "wrongPin";
