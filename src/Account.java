@@ -42,7 +42,7 @@ public class Account {
 
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			System.out.println("Withdrawing error!");
 			e.printStackTrace();
 		}
 		return "Pin Incorrect!";
@@ -51,7 +51,7 @@ public class Account {
 	public String transfer(int pin, double amount, String reciever) {
 		if (checkPin(pin)) {
 			if (Double.parseDouble(getBalance()) > amount) {
-				withdraw(amount,pin);
+				withdraw(amount, pin);
 				String[] Owner;
 				String[] Balance;
 				String[] InterestRate;
@@ -80,18 +80,19 @@ public class Account {
 					for (int i = 0; i < Owner.length; i++) {
 						if (reciever.equalsIgnoreCase(Owner[i])) {
 							index = i;
-							
-								Balance[index] = ""+(Double.parseDouble(Balance[index])+amount);
-								PrintWriter out = new PrintWriter(file);
-								out.println(arrayToString(Owner));
-								out.println(arrayToString(Balance));
-								out.println(arrayToString(InterestRate));
-								out.println(arrayToString(Type));
-								out.println(arrayToString(LastRefreshTime));
-								out.println(arrayToString(Encrypted));
-								out.flush();
-								out.close();
-								return "Transfer Success!";
+
+							Balance[index] = ""
+									+ (Double.parseDouble(Balance[index]) + amount);
+							PrintWriter out = new PrintWriter(file);
+							out.println(arrayToString(Owner));
+							out.println(arrayToString(Balance));
+							out.println(arrayToString(InterestRate));
+							out.println(arrayToString(Type));
+							out.println(arrayToString(LastRefreshTime));
+							out.println(arrayToString(Encrypted));
+							out.flush();
+							out.close();
+							return "Transfer Success!";
 						}
 						reader.close();
 					}
@@ -107,10 +108,11 @@ public class Account {
 					System.out.println("!database loading error!");
 					e.printStackTrace();
 				} catch (Exception e) {
-					System.out.println("!database loading error(encryption error)!");
+					System.out
+							.println("!database loading error(encryption error)!");
 					e.printStackTrace();
 				}
-				
+
 			} else {
 				return "You don't have enough money!";
 			}
@@ -138,6 +140,7 @@ public class Account {
 			type = "";
 			lastRefreshTime = "";
 			encrypted = "";
+			loggedIn = false;
 			refreshData();
 			return "Account deleted!";
 		} else {
@@ -211,7 +214,7 @@ public class Account {
 				return "Success! Please log in again!";
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			System.out.println("Pin changing error!");
 			e.printStackTrace();
 		}
 		return "Current Pin Incorrect!";
@@ -231,7 +234,7 @@ public class Account {
 				return "Success!";
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			System.out.println("Type changing error!");
 			e.printStackTrace();
 		}
 		return "Current Pin Incorrect!";
@@ -250,7 +253,7 @@ public class Account {
 				return "Done! Please log in again!";
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
+			System.out.println("Name changing error!");
 			e.printStackTrace();
 		}
 		return "Pin Incorrect!";
@@ -442,10 +445,10 @@ public class Account {
 			}
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Refreshing data error!");
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.out.println("Refreshing data error!");
 			e.printStackTrace();
 		}
 	}
