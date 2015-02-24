@@ -34,7 +34,7 @@ public class Bank extends ConsoleProgram {
 			IODialog confirm = new IODialog();
 			if (confirm.readBoolean("Are you sure you want to exit?")) {
 				IODialog seeYou = new IODialog();
-				seeYou.println("Thank you for using this app!-----Xander Li");
+				seeYou.println("Thank you for using this bank!-----Xander Li");
 				System.exit(0);
 			}
 		}
@@ -100,8 +100,16 @@ public class Bank extends ConsoleProgram {
 		} else if (input == 2) {
 			String newOwner = readLine("What's your new owner name? ");
 			int pin = readInt("Pin: ");
-			println(temp.changeOwner(newOwner, pin));
-			level1UI();
+			
+			String te = temp.changeOwner(newOwner, pin);
+			if(te.equals("Done! Please log in again!")){
+				println(te);
+				level1UI();
+			}else{
+				println(te);
+				level3UI();
+			}
+			
 		} else if (input == 3) {
 			println();
 			println("1---Change to Saving Account");
