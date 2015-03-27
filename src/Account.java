@@ -2,7 +2,6 @@ import java.io.*;
 import java.security.MessageDigest;
 
 public class Account {
-	private final File file = new File(getFile());
 	private String owner;
 	private String balance;
 	private String interestRate;
@@ -63,7 +62,7 @@ public class Account {
 				try {
 					// load data into string
 					int index;
-					reader = new BufferedReader(new FileReader(file));
+					reader = new BufferedReader(new FileReader("database.txt"));
 					String line = reader.readLine();
 					Owner = line.split(" ");
 					line = reader.readLine();
@@ -83,14 +82,14 @@ public class Account {
 
 							Balance[index] = ""
 									+ (Double.parseDouble(Balance[index]) + amount);
-							PrintWriter out = new PrintWriter(file);
+							PrintWriter out = new PrintWriter(new FileWriter("database.txt"));
 							out.println(arrayToString(Owner));
 							out.println(arrayToString(Balance));
 							out.println(arrayToString(InterestRate));
 							out.println(arrayToString(Type));
 							out.println(arrayToString(LastRefreshTime));
 							out.println(arrayToString(Encrypted));
-							out.flush();
+							//out.flush();
 							out.close();
 							return "Transfer Success!";
 						}
@@ -152,7 +151,7 @@ public class Account {
 	public String nameCheck(String name) {
 		BufferedReader reader;
 		try {
-			reader = new BufferedReader(new FileReader(file));
+			reader = new BufferedReader(new FileReader("database.txt"));
 			String line = reader.readLine();
 			reader.close();
 			String[] Owner = line.split(" ");
@@ -272,7 +271,7 @@ public class Account {
 		try {
 			// load data into string
 			int index;
-			reader = new BufferedReader(new FileReader(file));
+			reader = new BufferedReader(new FileReader("database.txt"));
 			String line = reader.readLine();
 			Owner = line.split(" ");
 			line = reader.readLine();
@@ -331,7 +330,7 @@ public class Account {
 		String[] existingEncrypted;
 		BufferedReader reader;
 		try {
-			reader = new BufferedReader(new FileReader(file));
+			reader = new BufferedReader(new FileReader("database.txt"));
 			// reading existing data into existingArrays
 			String line = reader.readLine();
 			existingOwner = line.split(" ");
@@ -345,7 +344,7 @@ public class Account {
 			existingLastRefreshTime = line.split(" ");
 			line = reader.readLine();
 			existingEncrypted = line.split(" ");
-
+			reader.close();
 			newLength = existingOwner.length + 1;
 			// creating arrays for new data
 			String[] newOwner = new String[newLength];
@@ -373,17 +372,18 @@ public class Account {
 			newType[newLength - 1] = type;
 			newLastRefreshTime[newLength - 1] = "" + lastRefreshTime;
 			newEncrypted[newLength - 1] = encrypted;
+			reader.close();
 			// println the string array to file
-			PrintWriter out = new PrintWriter(file);
+			PrintWriter out = new PrintWriter(new FileWriter("database.txt"));
 			out.println(arrayToString(newOwner));
 			out.println(arrayToString(newBalance));
 			out.println(arrayToString(newInterestRate));
 			out.println(arrayToString(newType));
 			out.println(arrayToString(newLastRefreshTime));
 			out.println(arrayToString(newEncrypted));
-			out.flush();
+			//out.flush();
 			out.close();
-			reader.close();
+			
 			// catching
 		} catch (FileNotFoundException e) {
 			System.out.println("!database reading error (buffered reader)!");
@@ -407,7 +407,7 @@ public class Account {
 		String[] Encrypted;
 		BufferedReader reader;
 		try {
-			reader = new BufferedReader(new FileReader(file));
+			reader = new BufferedReader(new FileReader("database.txt"));
 			String line;
 			line = reader.readLine();
 			Owner = line.split(" ");
@@ -432,7 +432,7 @@ public class Account {
 					LastRefreshTime[i] = lastRefreshTime;
 					Type[i] = type;
 					Encrypted[i] = encrypted;
-					PrintWriter out = new PrintWriter(file);
+					PrintWriter out = new PrintWriter(new FileWriter("database.txt"));
 					out.println(arrayToString(Owner));
 					out.println(arrayToString(Balance));
 					out.println(arrayToString(InterestRate));
@@ -464,10 +464,8 @@ public class Account {
 	private void interestCalculator() {
 		long duration = System.currentTimeMillis()
 				- Long.parseLong(lastRefreshTime);
-		int durationInHour = (int) ((System.currentTimeMillis() - Long
-				.parseLong(lastRefreshTime)) / 1000 / 60 / 60);
-		long remainder = duration - 60 * 60 * 1000 * durationInHour;
-		lastRefreshTime = "" + (System.currentTimeMillis() - remainder);
+		double durationInHour = duration / 1000 / 60 / 60;
+		lastRefreshTime = "" + (System.currentTimeMillis());
 		balance = ""
 				+ (Double.parseDouble(balance) * Math.pow(
 						(1 + Double.parseDouble(interestRate)), durationInHour));
@@ -488,16 +486,4 @@ public class Account {
 
 	}
 
-	private String getFile() {
-		String file;
-		String OS = System.getProperty("os.name");
-		if (OS.indexOf("Win") >= 0) {
-			file = "C:/Users/xander/workspace/MakingBank/src/database";
-			return file;
-		} else {
-			file = "/Users/ali/Documents/workspace/MakingBank/src/database";
-			return file;
-		}
-
-	}
 }

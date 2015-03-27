@@ -59,7 +59,7 @@ public class Bank extends ConsoleProgram {
 			level2UI();
 		} else if (input == 2) {
 			double amount = readDouble("How much do you want to add to your account? ");
-			temp.makeDeposit(amount);
+			println(temp.makeDeposit(amount));
 			level2UI();
 		} else if (input == 3) {
 			double amount = readDouble("How much do you want to withdraw? ");
